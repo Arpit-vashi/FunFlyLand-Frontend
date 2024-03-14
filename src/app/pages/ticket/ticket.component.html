@@ -1,0 +1,45 @@
+<div class="card">
+    <h5>List Tickets</h5>
+    <p-table [value]="tickets" [scrollable]="true" scrollHeight="400px" [tableStyle]="{'min-width': '70rem'}">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Ticket ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Mobile Number</th>
+                <th>Ticket Type</th>
+                <th>Adults</th>
+                <th>Children</th>
+                <th>Food</th>
+                <th>Payment Method</th>
+                <th>Tax Amount</th>
+                <th>Total Amount</th>
+                <th>Voucher</th>
+                <th>Address</th>
+                <th>Actions</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-ticket>
+            <tr>
+                <td>{{ ticket.id }}</td>
+                <td>{{ ticket.firstName }}</td>
+                <td>{{ ticket.lastName }}</td>
+                <td>{{ ticket.email }}</td>
+                <td>{{ ticket.mobileNumber }}</td>
+                <td>{{ ticket.ticketType }}</td>
+                <td>{{ ticket.numberOfAdults }}</td>
+                <td>{{ ticket.numberOfChildren }}</td>
+                <td>{{ ticket.foodOption }}</td>
+                <td>{{ ticket.paymentMethod }}</td>
+                <td>{{ ticket.taxAmount }}</td>
+                <td>{{ ticket.totalAmount }}</td>
+                <td>{{ ticket.promotionCode }}</td>
+                <td>{{ ticket.address }}</td>
+                <td>
+                    <button pButton type="button" icon="pi pi-trash" class="p-button-danger" (click)="deleteTicket(ticket.id)"></button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>

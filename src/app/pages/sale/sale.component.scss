@@ -1,0 +1,47 @@
+.form-container {
+    display: flex;
+    flex-direction: column;
+    margin: auto; /* Center the form horizontally */
+  }
+  
+  .section-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .section-container > div {
+    width: 30%; /* Adjust width as needed */
+    // border: 1px solid #ccc; /* Add a solid border */
+    padding: 10px; /* Add padding for better spacing */
+  }
+  
+  .section-container .p-field {
+    margin-bottom: 10px;
+  }
+  
+  .cus, .tik, .pay, .vou {
+    // border: 1px solid #ccc; /* Add a solid border */
+    padding: 10px; /* Add padding for better spacing */
+  }
+  
+  .p-field {
+    width: 100%;
+  }
+  
+  .p-float-label input, .p-float-label textarea {
+    width: 100%;
+  }
+  
+  .p-dropdown {
+    width: 100%;
+  }
+  
+  button {
+    margin-left: 10px;
+  }
+  
+  .pro {
+    margin-top: 10px;
+    margin-left: 0;
+  }

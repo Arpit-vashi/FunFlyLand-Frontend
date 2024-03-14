@@ -1,0 +1,92 @@
+<div class="main">
+<form [formGroup]="ticketForm" (ngSubmit)="onSubmit()" class="form-container">
+  <div class="section-container">
+    <div class="p-field">
+      <h4><strong>Visit Details</strong></h4>
+      <p-calendar placeholder="Visit Date" formControlName="visitDate" id="visitDate"></p-calendar>
+    </div>
+  </div>
+  <div class="section-container">
+    <div class="cus">
+      <h4><strong>Customer Details</strong></h4>
+      <div class="p-field">
+        <span class="p-float-label">
+          <input id="float-input-first-name" type="text" pInputText formControlName="firstName">
+          <label for="float-input-first-name">First Name</label>
+        </span>
+      </div>
+      <div class="p-field">
+        <span class="p-float-label">
+          <input id="float-input-last-name" type="text" pInputText formControlName="lastName">
+          <label for="float-input-last-name">Last Name</label>
+        </span>
+      </div>
+      <div class="p-field">
+        <span class="p-float-label">
+          <input id="float-input-email" type="text" pInputText formControlName="email">
+          <label for="float-input-email">Email</label>
+        </span>
+      </div>
+      <div class="p-field">
+        <span class="p-float-label">
+          <input id="float-input-mobile" type="text" pInputText formControlName="mobileNumber">
+          <label for="float-input-mobile">Mobile Number</label>
+        </span>
+      </div>
+      <div class="p-field">
+        <textarea rows="5" cols="30" pInputTextarea autoResize="autoResize" formControlName="address" placeholder="Address"></textarea>
+      </div>
+    </div>
+    <div class="tik">
+      <h4><strong>Ticket Details</strong></h4>
+      <div class="p-field">
+        <p-dropdown placeholder="Ticket Type" [options]="ticketTypes2" formControlName="ticketType"></p-dropdown>
+      </div>    
+      <div class="p-field">
+        <span class="p-float-label">
+          <input id="float-input-adults" type="number" pInputText formControlName="numberOfAdults" (input)="calculateTotalPersons()">
+          <label for="float-input-adults">Number of Adults</label>
+        </span>
+      </div>
+      <div class="p-field">
+        <span class="p-float-label">
+          <input id="float-input-children" type="number" pInputText formControlName="numberOfChildren" (input)="calculateTotalPersons()">
+          <label for="float-input-children">Number of Children</label>
+        </span>
+      </div>    
+      <div class="p-field">
+        <p-dropdown placeholder="Food" [options]="foodOptions" optionLabel="name" formControlName="foodOption"></p-dropdown>
+      </div>    
+    </div>
+    <div class="pay">
+      <h4><strong>Payment Details</strong></h4>
+      <div class="p-field">
+        <p-dropdown placeholder="Payment Method" [options]="paymentMethods" optionLabel="label" formControlName="paymentMethod"></p-dropdown>
+      </div>
+      <div class="p-field">
+        <input id="disabled-input-tax" type="text" pInputText [disabled]="true" formControlName="taxAmount" placeholder="Tax Amount">
+      </div>
+      <div class="p-field">
+        <input id="disabled-input-total" type="text" pInputText [disabled]="true" formControlName="totalAmount" placeholder="Total Amount">
+      </div>   
+    </div> 
+  </div> 
+  <div class="section-container">
+    <div class="vou">
+      <h4><strong>Vouchers Details</strong></h4>
+      <div class="p-field">
+        <span class="p-float-label">
+          <input id="float-input-promotion" type="text" pInputText formControlName="promotionCode">
+          <label for="float-input-promotion">Promotion/Voucher</label>
+        </span>
+      </div> 
+      <button pButton pRipple type="button" label="Check Voucher Validity" class="p-button-raised p-button-info pro" (click)="checkVoucherValidity()"></button>
+      <button pButton pRipple type="button" label="Remove Voucher" class="p-button-raised p-button-warning pro" (click)="removeVoucher()"></button> 
+    </div>
+    <div class=" ">
+      <button pButton pRipple type="submit" label="Submit" class="p-button-raised p-button-success"></button>
+      <button pButton pRipple type="button" label="Print" class="p-button-raised p-button-danger"></button>
+    </div>
+  </div>
+</form>
+</div>

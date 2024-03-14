@@ -1,0 +1,89 @@
+<h3><strong>Add Ticket</strong></h3>
+<form #ticketForm="ngForm" (ngSubmit)="onSubmit(ticketForm)">
+    <div class="mn">
+    <div class="fr">
+    <span class="p-float-label mr">
+        <input id="name-input" type="text" pInputText [(ngModel)]="ticket.ticketTypeName" name="name" required> 
+        <label for="name-input">Name</label>
+    </span>
+    <span class="p-float-label mr">
+        <input id="price-input" type="number" pInputText [(ngModel)]="ticket.ticketTypePrice" name="price" required> 
+        <label for="price-input">Price</label>
+    </span>
+    <p-dropdown [options]="speedOptions" [(ngModel)]="ticket.ticketSpeed" name="speed" placeholder="Select Speed" optionLabel="label"></p-dropdown>
+</div>
+<div class="sr">
+    <p-dropdown [options]="promotionOptions" [(ngModel)]="ticket.promotion" name="promotion" placeholder="Select Promotion" optionLabel="label"></p-dropdown>
+    <button  pButton pRipple type="submit" label="Submit" class="ml p-button-raised p-button-success"></button>
+</div>
+</div>
+</form>
+<hr>
+<div class="card">
+    <h5>Ticket Types</h5>
+    <p-table [value]="ticketTypes" dataKey="id" editMode="row" [tableStyle]="{'min-width': '50rem','min-height':'30rem'}">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Ticket Speed</th>
+                <th>Promotion</th>
+                <th>Action</th> <!-- New column for action buttons -->
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-ticketType let-editing="editing" let-ri="rowIndex">
+            <tr [pEditableRow]="ticketType">
+                <td>{{ ticketType.id }}</td>
+                <td>
+                    <p-cellEditor>
+                        <ng-template pTemplate="input">
+                            <input pInputText type="text" [(ngModel)]="ticketType.ticketTypeName" name="ticketTypeName">
+                        </ng-template>
+                        <ng-template pTemplate="output">
+                            {{ ticketType.ticketTypeName }}
+                        </ng-template>
+                    </p-cellEditor>
+                </td>
+                <td>
+                    <p-cellEditor>
+                        <ng-template pTemplate="input">
+                            <input pInputText type="number" [(ngModel)]="ticketType.ticketTypePrice" name="ticketTypePrice">
+                        </ng-template>
+                        <ng-template pTemplate="output">
+                            {{ ticketType.ticketTypePrice }}
+                        </ng-template>
+                    </p-cellEditor>
+                </td>
+                <td>
+                    <p-cellEditor>
+                        <ng-template pTemplate="input">
+                            <p-dropdown [options]="speedOptions" [(ngModel)]="ticketType.ticketSpeed" name="ticketSpeed" optionLabel="label"></p-dropdown>
+                        </ng-template>
+                        <ng-template pTemplate="output">
+                            {{ ticketType.ticketSpeed }}
+                        </ng-template>
+                    </p-cellEditor>
+                </td>
+                <td>
+                    <p-cellEditor>
+                        <ng-template pTemplate="input">
+                            <p-dropdown [options]="promotionOptions" [(ngModel)]="ticketType.promotion" name="promotion" optionLabel="label"></p-dropdown>
+                        </ng-template>
+                        <ng-template pTemplate="output">
+                            {{ ticketType.promotion }}
+                        </ng-template>
+                    </p-cellEditor>
+                </td>
+                <td>
+                    <div class="flex align-items-center justify-content-center gap-2">
+                        <button *ngIf="!editingTicket" pButton pRipple type="button" pInitEditableRow icon="pi pi-pencil" (click)="editTicket(ticketType)"></button>
+                        <button *ngIf="editingTicket" pButton pRipple type="button" pSaveEditableRow icon="pi pi-check" (click)="saveTicketType()" class="p-button-success"></button>
+                        <button *ngIf="editingTicket" pButton pRipple type="button" pCancelEditableRow icon="pi pi-times" (click)="cancelEdit()" class="p-button-danger"></button>
+                        <button pButton pRipple type="button" icon="pi pi-trash" (click)="deleteTicket(ticketType.id)" class="p-button-danger"></button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
