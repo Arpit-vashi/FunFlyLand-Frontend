@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MessageService } from 'primeng/api';
 import { TicketTypeService } from '../../service/tickettype.service';
 import { FoodService } from '../../service/food.service';
 import { VoucherService } from '../../service/voucher.service';
@@ -7,11 +8,16 @@ import { TicketTypeResponse } from 'src/app/model/ticket-type/ticket-type-respon
 import { TicketService } from "./../../service/ticket.service";
 import { TicketResponse } from "../../model/ticket/ticket-response.model";
 import { TicketRequest } from "../../model/ticket/ticket-request.model";
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
+import * as QRCode from 'qrcode';
+import autoTable from 'jspdf-autotable';
 
 @Component({
   selector: 'app-sale',
   templateUrl: './sale.component.html',
-  styleUrls: ['./sale.component.scss']
+  styleUrls: ['./sale.component.scss'],
+  providers: [MessageService] // Provide MessageService
 })
 export class SaleComponent implements OnInit {
   ticketForm: FormGroup;
@@ -23,6 +29,8 @@ export class SaleComponent implements OnInit {
   totalCost: number = 0;
   voucherCode: string = '';
   voucherValidityMessage: string = '';
+  voucherId:any;
+  printDisabled: boolean = true;
 
   paymentMethods = [
     { label: 'Cash', value: 'cash' },
@@ -32,6 +40,7 @@ export class SaleComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
+    private messageService: MessageService,
     private ticketTypeService: TicketTypeService,
     private TicketService: TicketService,
     private foodService: FoodService,
@@ -65,163 +74,168 @@ export class SaleComponent implements OnInit {
     this.ticketTypeService.getTicketTypes().subscribe(types => {
       this.ticketTypes = types;
       this.ticketTypes2 = this.ticketTypes.map(type => type.ticketTypeName);
-      console.log('Ticket Types:', this.ticketTypes);
     });
   }
 
   loadFoodOptions() {
     this.foodService.getAllFoods().subscribe(foods => {
-      // Add NONE option with foodPrice as 0
       this.foodOptions = [{ name: 'NONE', price: 0 }, ...foods];
-      console.log('Food Options:', this.foodOptions);
     });
   }
 
   loadVouchers() {
     this.voucherService.getAllVouchers().subscribe(vouchers => {
       this.vouchers = vouchers;
-      console.log('Vouchers:', this.vouchers);
     });
   }
 
   onSubmit() {
-  if (this.ticketForm.valid) {
-    console.log('Form data:', this.ticketForm.value);
-    const ticketRequest: TicketRequest = {
-      date: this.ticketForm.value.visitDate,
-      firstName: this.ticketForm.value.firstName,
-      lastName: this.ticketForm.value.lastName,
-      email: this.ticketForm.value.email,
-      mobileNumber: this.ticketForm.value.mobileNumber,
-      ticketType: this.ticketForm.value.ticketType,
-      numberOfAdults: this.ticketForm.value.numberOfAdults,
-      numberOfChildren: this.ticketForm.value.numberOfChildren,
-      foodOption: this.ticketForm.value.foodOption.name,
-      paymentMethod: this.ticketForm.value.paymentMethod.value,
-      taxAmount: this.ticketForm.value.taxAmount,
-      totalAmount: this.ticketForm.value.totalAmount,
-      promotionCode: this.ticketForm.value.promotionCode,
-      address: this.ticketForm.value.address
-    };
+    if (this.ticketForm.valid) {
+      const ticketRequest: TicketRequest = {
+        date: this.ticketForm.value.visitDate,
+        firstName: this.ticketForm.value.firstName,
+        lastName: this.ticketForm.value.lastName,
+        email: this.ticketForm.value.email,
+        mobileNumber: this.ticketForm.value.mobileNumber,
+        ticketType: this.ticketForm.value.ticketType,
+        numberOfAdults: this.ticketForm.value.numberOfAdults,
+        numberOfChildren: this.ticketForm.value.numberOfChildren,
+        foodOption: this.ticketForm.value.foodOption.name,
+        paymentMethod: this.ticketForm.value.paymentMethod.value,
+        taxAmount: this.ticketForm.value.taxAmount,
+        totalAmount: this.ticketForm.value.totalAmount,
+        promotionCode: this.ticketForm.value.promotionCode,
+        address: this.ticketForm.value.address
+      };
 
-    this.TicketService.createTicket(ticketRequest).subscribe(
-      (response: TicketResponse) => {
-        console.log('Ticket created successfully:', response);
-        // Handle success - maybe show a success message or navigate to another page
-        
-        // After ticket is saved, apply voucher logic
-        // if (ticketRequest.promotionCode) {
-        //   this.voucherService.getVoucherById(ticketRequest.promotionCode).subscribe(
-        //     (voucher) => {
-        //       if (voucher) {
-        //         voucher.validForNumberOfCustomers--; // Decrease validForNumberOfCustomers by 1
-        //         this.voucherService.updateVoucher(voucher.id, voucher).subscribe(
-        //           () => {
-        //             console.log(`Valid persons decreased for voucher ${voucher.code}`);
-        //           },
-        //           (error) => {
-        //             console.error('Error updating voucher:', error);
-        //           }
-        //         );
-        //       }
-        //     },
-        //     (error) => {
-        //       console.error('Error fetching voucher:', error);
-        //     }
-        //   );
-        // }
-      },
-      (error) => {
-        console.error('Error creating ticket:', error);
-        // Handle error - maybe show an error message to the user
-      }
-    );
-  } else {
-    console.error('Form is invalid. Cannot submit.');
-    // Handle invalid form submission
-  }
-}
+      this.checkVoucherValidity();
 
-  
+      this.TicketService.createTicket(ticketRequest).subscribe(
+        (response: TicketResponse) => {
+          if (ticketRequest.promotionCode) {
+            this.voucherService.getVoucherById(this.voucherId).subscribe(
+              (voucher) => {
+                if (voucher) {
+                  voucher.validForNumberOfCustomers--;
+                  this.voucherService.updateVoucher(voucher.id, voucher).subscribe(
+                    () => {
+                      console.log(`Valid persons decreased for voucher ${voucher.code}`);
+                    },
+                    (error) => {
+                      console.error('Error updating voucher:', error);
+                    }
+                  );
+                }
+              },
+              (error) => {
+                console.error('Error fetching voucher:', error);
+              }
+            );
+          }
+        },
+        (error) => {
+          console.error('Error creating ticket:', error);
+        }
+      );
 
-  calculateTotalAmount() {
-    // Calculate total amount logic
-  }
-
-  applyDiscountFromVoucher() {
-    const promotionCode = this.ticketForm.value.promotionCode;
-    const voucher = this.vouchers.find(voucher => voucher.code === promotionCode);
-  
-    if (voucher) {
-      const discountPercentage = voucher.discount;
-      const discountAmount = (discountPercentage / 100) * this.totalCost;
-      this.totalCost -= discountAmount;
-  
-      console.log(`Discount of ${discountAmount} applied. Total Cost after discount: ${this.totalCost}`);
+      this.printDisabled = false;
     } else {
-      console.log('Invalid or expired promotion code.');
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Form is invalid. Please fill all fields.' });
     }
+    this.ticketForm.reset();
   }
-  
 
-  checkVoucherValidity() {
-    let found = false;
-    for (const voucher of this.vouchers) {
-      if (voucher.code === this.ticketForm.value.promotionCode) {
-        this.voucherValidityMessage = `Voucher is valid. Discount: ${voucher.discount}`;
-        console.log(this.voucherValidityMessage);
-        found = true;
-        break;
+  async generatePdfWithQRCode() {
+    const formValues = this.ticketForm.value;
+    const doc = new jsPDF();
+
+    const logo = new Image();
+    logo.src = 'https://img.icons8.com/papercut/60/theme-park.png';
+    const center = (doc.internal.pageSize.getWidth() / 2) - (30 / 2);
+    doc.addImage(logo, 'PNG', center, 10, 30, 30);
+    doc.setFontSize(16);
+    doc.setFont('bold');
+    doc.text("FunFlyLand", center, 50, { align: 'center',  });
+
+    let yPos = 80;
+    const tableData = [];
+    for (const [key, value] of Object.entries(formValues)) {
+      if (key === 'foodOption') {
+        const foodOptionValue = (value as any)?.name;
+          tableData.push(['Food Option', foodOptionValue]);
+      } else if (key === 'paymentMethod') {
+          const paymentMethodValue = (value as any)?.value;
+          tableData.push(['Payment Method', paymentMethodValue]);
+      } else {
+          tableData.push([key, value]);
       }
-    }
-    if (!found) {
-      this.voucherValidityMessage = 'Invalid voucher';
-      console.log(this.voucherValidityMessage);
-    }
-  
-    // Recalculate total cost after checking voucher validity
-    this.calculateTotalCost();
   }
-  
+
+    autoTable(doc,{
+        startY: yPos,
+        head: [['Field', 'Value']],
+        body: tableData,
+        styles: {
+            fontSize: 10,
+            fontStyle: 'bold',
+        },
+    });
+
+    const totalCostY = yPos + 170;
+    doc.setFont('bold');
+    doc.text("Total cost:", 10, totalCostY);
+    doc.setFont('normal');
+    doc.text(`${this.totalCost}`, 80, totalCostY);
+
+    const qrText = JSON.stringify(formValues);
+    const qrCodeSize = 30;
+    const margin = 10;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const qrCodeX = pageWidth - qrCodeSize - margin ;
+    const qrCodeY = pageHeight - qrCodeSize - margin ;
+
+    const qrCodeDataUrl = await QRCode.toDataURL(qrText);
+    doc.addImage(qrCodeDataUrl, 'PNG', qrCodeX, qrCodeY, qrCodeSize, qrCodeSize);
+
+    doc.setFontSize(12);
+    doc.setTextColor(0);
+    doc.text("Thanks visit again", doc.internal.pageSize.getWidth() / 2, doc.internal.pageSize.height - 10, { align: 'center' });
+
+    const fileName = `${formValues.firstName}_Ticket.pdf`;
+    doc.save(fileName);
+  }
 
   calculateTotalPersons() {
     const numberOfAdults = this.ticketForm.value.numberOfAdults || 0;
     const numberOfChildren = this.ticketForm.value.numberOfChildren || 0;
     this.totalPersons = numberOfAdults + numberOfChildren;
-    console.log('Total Persons:', this.totalPersons);
-    this.getSelectedFoodPrice()
+    this.getSelectedFoodPrice();
     this.calculateTotalCost();
   }
 
   calculateTotalCost() {
-  debugger
     const ticketTypePrice = this.ticketTypes[0].ticketTypePrice;
     const foodPrice = this.getSelectedFoodPrice();
     const ticketTypeCost = this.totalPersons * ticketTypePrice;
     const foodCost = this.totalPersons * foodPrice;
     const previousAddition = ticketTypeCost + foodCost;
-    const additionalCost = previousAddition * 0.15; // 15% of the previous addition
+    const additionalCost = previousAddition * 0.15;
     this.totalCost = previousAddition + additionalCost;
-  
-    // Check if a valid voucher is entered
+
     const promotionCode = this.ticketForm.value.promotionCode;
     const voucher = this.vouchers.find(voucher => voucher.code === promotionCode);
     if (voucher) {
       const discountPercentage = voucher.discount;
       const discountAmount = (discountPercentage / 100) * this.totalCost;
       this.totalCost -= discountAmount;
-      console.log(`Discount of ${discountAmount} applied from voucher. Total Cost after discount: ${this.totalCost}`);
     }
 
     const taxAmount = additionalCost;
-    this.ticketForm.patchValue({ taxAmount }); // Automatically fill the taxAmount field in the form
-  
-    console.log('Total Cost:', this.totalCost);
-    // Calculate Total amount
+    this.ticketForm.patchValue({ taxAmount });
+
     const totalAmount = this.totalCost;
-    this.ticketForm.patchValue({ totalAmount }); // Automatically fill the taxAmount field in the form
-  
-    console.log('Total Cost:', this.totalCost);
+    this.ticketForm.patchValue({ totalAmount });
   }
 
   getSelectedFoodPrice(): number {
@@ -230,17 +244,29 @@ export class SaleComponent implements OnInit {
     if(selectedFood) {
       selectedFoodPrice = this.ticketForm.value.foodOption.price
     }
-    return selectedFoodPrice
-    this.calculateTotalCost()
-
+    return selectedFoodPrice;
+    this.calculateTotalCost();
   }
-  
-
 
   removeVoucher() {
-    // Reset voucher code and clear voucher effect on price
     this.ticketForm.patchValue({ promotionCode: '' });
     this.calculateTotalCost();
   }
-  
+
+  checkVoucherValidity() {
+    let found = false;
+    for (const voucher of this.vouchers) {
+      if (voucher.code === this.ticketForm.value.promotionCode) {
+        this.voucherId = voucher.id;
+        this.voucherValidityMessage = `Voucher is valid. Discount: ${voucher.discount}`;
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      this.voucherValidityMessage = 'Invalid voucher';
+    }
+
+    this.calculateTotalCost();
+  }
 }

@@ -74,6 +74,7 @@
   <div class="section-container">
     <div class="vou">
       <h4><strong>Vouchers Details</strong></h4>
+      <h6 class="wr"><strong>Note: Enter and check voucher after selecting all feilds</strong></h6>
       <div class="p-field">
         <span class="p-float-label">
           <input id="float-input-promotion" type="text" pInputText formControlName="promotionCode">
@@ -84,8 +85,9 @@
       <button pButton pRipple type="button" label="Remove Voucher" class="p-button-raised p-button-warning pro" (click)="removeVoucher()"></button> 
     </div>
     <div class=" ">
+      <h6 class="wr"><strong>Note: Print Invoice before Submit</strong></h6>
       <button pButton pRipple type="submit" label="Submit" class="p-button-raised p-button-success"></button>
-      <button pButton pRipple type="button" label="Print" class="p-button-raised p-button-danger"></button>
+      <button pButton pRipple type="button" label="Print" class="p-button-raised p-button-danger" (click)="generatePdfWithQRCode()"></button>
     </div>
   </div>
 </form>

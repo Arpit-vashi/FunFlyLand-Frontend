@@ -58,7 +58,7 @@
                 <td>
                     <p-cellEditor>
                         <ng-template pTemplate="input">
-                            <p-dropdown [options]="speedOptions" [(ngModel)]="ticketType.ticketSpeed" name="ticketSpeed" optionLabel="label"></p-dropdown>
+                            <p-dropdown [options]="speedOptions" [(ngModel)]="ticketType.ticketSpeed" appendTo="body" name="ticketSpeed" optionLabel="label" optionValue="label"></p-dropdown>
                         </ng-template>
                         <ng-template pTemplate="output">
                             {{ ticketType.ticketSpeed }}
@@ -68,7 +68,7 @@
                 <td>
                     <p-cellEditor>
                         <ng-template pTemplate="input">
-                            <p-dropdown [options]="promotionOptions" [(ngModel)]="ticketType.promotion" name="promotion" optionLabel="label"></p-dropdown>
+                            <p-dropdown [options]="promotionOptions" [(ngModel)]="ticketType.promotion" appendTo="body" name="promotion" optionLabel="label"></p-dropdown>
                         </ng-template>
                         <ng-template pTemplate="output">
                             {{ ticketType.promotion }}

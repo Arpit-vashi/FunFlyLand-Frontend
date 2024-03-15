@@ -27,6 +27,7 @@
   
   .p-field {
     width: 100%;
+    padding-top: 10px;
   }
   
   .p-float-label input, .p-float-label textarea {
@@ -48,4 +49,8 @@
 
   .p-button-warning {
     margin-left: 10px;
+  }
+
+  .wr{
+    color: red;
   }
