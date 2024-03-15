@@ -40,6 +40,9 @@
     <div class="tik">
       <h4><strong>Ticket Details</strong></h4>
       <div class="p-field">
+        <p-dropdown placeholder="Food" [options]="foodOptions" optionLabel="name" formControlName="foodOption"></p-dropdown>
+      </div> 
+      <div class="p-field">
         <p-dropdown placeholder="Ticket Type" [options]="ticketTypes2" formControlName="ticketType"></p-dropdown>
       </div>    
       <div class="p-field">
@@ -53,10 +56,7 @@
           <input id="float-input-children" type="number" pInputText formControlName="numberOfChildren" (input)="calculateTotalPersons()">
           <label for="float-input-children">Number of Children</label>
         </span>
-      </div>    
-      <div class="p-field">
-        <p-dropdown placeholder="Food" [options]="foodOptions" optionLabel="name" formControlName="foodOption"></p-dropdown>
-      </div>    
+      </div>       
     </div>
     <div class="pay">
       <h4><strong>Payment Details</strong></h4>

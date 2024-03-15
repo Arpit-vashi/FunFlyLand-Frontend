@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CashierService } from '../../service/cashier.service';
+import { UserService } from '../../service/user.service';
 import { FoodService } from '../../service/food.service';
 import { TicketService } from '../../service/ticket.service';
 import { TicketTypeService } from '../../service/tickettype.service';
@@ -17,15 +17,14 @@ export class AdminDashboardComponent implements OnInit {
   totalTicketTypes: number = 0;
   totalFoodItems: number = 0;
   totalEarnings: number = 0;
-  totalEmployees: number = 0;
+  totalUsers: number = 0; // Change to totalUsers
   totalVouchers: number = 0;
   totalBookings: number = 0;
   bookingNumberChartData: any;
   totalTickets: number = 0;
-  totalCashiers: number = 0;
 
   constructor(
-    private cashierService: CashierService,
+    private userService: UserService, // Change to UserService
     private foodService: FoodService,
     private ticketService: TicketService,
     private ticketTypeService: TicketTypeService,
@@ -42,6 +41,10 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   fetchData() {
+    this.userService.getAllUsers().subscribe((users: any[]) => {
+      this.totalUsers = users.length; // Get total number of users
+    });
+
     this.ticketTypeService.getTicketTypes().subscribe((types: TicketTypeResponse[]) => {
       this.totalTicketTypes = types.length;
     });
@@ -53,21 +56,15 @@ export class AdminDashboardComponent implements OnInit {
     this.voucherService.getAllVouchers().subscribe((vouchers: any[]) => {
       this.totalVouchers = vouchers.length;
     });
-    this.ticketService.getAllTickets().subscribe((tickets: any[]) => {
-      this.totalTickets = tickets.length; // Changed from totalBookings
-      console.log(this.totalTickets)
-      this.totalBookings = this.totalTickets
-    });
-    this.cashierService.getAllCashiers().subscribe((cashier: any[]) => {
-      this.totalCashiers = cashier.length;
-      this.totalEmployees = this.totalCashiers
-    });
+
     this.ticketService.getAllTickets().subscribe((tickets: any[]) => {
       this.totalTickets = tickets.length;
+      this.totalBookings = this.totalTickets;
+    });
+
+    this.ticketService.getAllTickets().subscribe((tickets: any[]) => {
       // Calculate total earnings from tickets
       this.totalEarnings = tickets.reduce((total, ticket) => total + ticket.totalAmount, 0);
     });
-
-   
   }
 }

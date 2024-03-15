@@ -13,7 +13,6 @@ import {InputTextareaModule} from 'primeng/inputtextarea';
 import {TableModule} from 'primeng/table';
 import { TicketComponent } from './pages/ticket/ticket.component';
 import { VoucherComponent } from './pages/voucher/voucher.component';
-import { CashierComponent } from './pages/cashier/cashier.component';
 import {InputNumberModule} from 'primeng/inputnumber';
 import { FoodComponent } from './pages/food/food.component';
 import { TicketTypeComponent } from './pages/ticket-type/ticket-type.component';
@@ -22,15 +21,16 @@ import { CommonModule } from '@angular/common';
 import {ToastModule} from 'primeng/toast';
 import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard.component';
 import { ChartModule } from 'primeng/chart';
+import { UsersComponent } from './pages/users/users.component';
 
 @NgModule({
     declarations: [
+        UsersComponent,
         AppComponent, 
         NotfoundComponent,
         SaleComponent,
         TicketComponent,
         VoucherComponent,
-        CashierComponent,
         FoodComponent, 
         TicketTypeComponent,
         AdminDashboardComponent

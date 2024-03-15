@@ -1,0 +1,29 @@
+.user-form {
+    max-width: 600px;
+    margin: 0 ;
+  }
+  
+  .form-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .form-group {
+    width: calc(33.33% - 10px); /* Adjust the width as needed */
+  }
+  
+  .p-float-label {
+    width: 100%;
+  }
+  
+  .p-dropdown {
+    width: 100%;
+  }
+  
+  .mn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
