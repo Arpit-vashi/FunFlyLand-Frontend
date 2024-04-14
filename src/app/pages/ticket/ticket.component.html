@@ -38,6 +38,10 @@
                 <td>{{ ticket.address }}</td>
                 <td>
                     <button pButton type="button" icon="pi pi-trash" class="p-button-danger" (click)="deleteTicket(ticket.id)"></button>
+                    <button pButton type="button" icon="pi pi-print" class="p-button-success" (click)="generatePdfWithQRCode(ticket)"></button>
+                </td>
+                <td>
+                    
                 </td>
             </tr>
         </ng-template>

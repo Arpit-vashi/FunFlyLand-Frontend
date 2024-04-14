@@ -86,9 +86,12 @@
     </div>
     <div class=" ">
       <h6 class="wr"><strong>Note: Print Invoice before Submit</strong></h6>
-      <button pButton pRipple type="submit" label="Submit" class="p-button-raised p-button-success"></button>
-      <button pButton pRipple type="button" label="Print" class="p-button-raised p-button-danger" (click)="generatePdfWithQRCode()"></button>
+      <button pButton pRipple type="submit" icon="pi pi-plus" label="Submit" class="p-button-raised p-button-success"
+      [disabled]="!ticketForm.valid"></button>
+      <button pButton pRipple type="button" icon="pi pi-print" label="Print" class="p-button-raised p-button-danger"
+      (click)="generatePdfWithQRCode()" [disabled]="!ticketForm.valid"></button>
     </div>
   </div>
 </form>
 </div>
+<p-toast></p-toast>

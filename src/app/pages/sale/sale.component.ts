@@ -17,7 +17,7 @@ import autoTable from 'jspdf-autotable';
   selector: 'app-sale',
   templateUrl: './sale.component.html',
   styleUrls: ['./sale.component.scss'],
-  providers: [MessageService] // Provide MessageService
+  providers: [MessageService]
 })
 export class SaleComponent implements OnInit {
   ticketForm: FormGroup;
@@ -29,7 +29,7 @@ export class SaleComponent implements OnInit {
   totalCost: number = 0;
   voucherCode: string = '';
   voucherValidityMessage: string = '';
-  voucherId:any;
+  voucherId: any;
   printDisabled: boolean = true;
 
   paymentMethods = [
@@ -146,64 +146,68 @@ export class SaleComponent implements OnInit {
   }
 
   async generatePdfWithQRCode() {
-    const formValues = this.ticketForm.value;
-    const doc = new jsPDF();
+    if (this.ticketForm.valid) {
+      const formValues = this.ticketForm.value;
+      const doc = new jsPDF();
 
-    const logo = new Image();
-    logo.src = 'https://img.icons8.com/papercut/60/theme-park.png';
-    const center = (doc.internal.pageSize.getWidth() / 2) - (30 / 2);
-    doc.addImage(logo, 'PNG', center, 10, 30, 30);
-    doc.setFontSize(16);
-    doc.setFont('bold');
-    doc.text("FunFlyLand", center, 50, { align: 'center',  });
+      const logo = new Image();
+      logo.src = 'https://img.icons8.com/papercut/60/theme-park.png';
+      const center = (doc.internal.pageSize.getWidth() / 2) - (30 / 2);
+      doc.addImage(logo, 'PNG', center, 10, 30, 30);
+      doc.setFontSize(16);
+      doc.setFont('bold');
+      doc.text("FunFlyLand", center, 50, { align: 'center', });
 
-    let yPos = 80;
-    const tableData = [];
-    for (const [key, value] of Object.entries(formValues)) {
-      if (key === 'foodOption') {
-        const foodOptionValue = (value as any)?.name;
+      let yPos = 80;
+      const tableData = [];
+      for (const [key, value] of Object.entries(formValues)) {
+        if (key === 'foodOption') {
+          const foodOptionValue = (value as any)?.name;
           tableData.push(['Food Option', foodOptionValue]);
-      } else if (key === 'paymentMethod') {
+        } else if (key === 'paymentMethod') {
           const paymentMethodValue = (value as any)?.value;
           tableData.push(['Payment Method', paymentMethodValue]);
-      } else {
+        } else {
           tableData.push([key, value]);
+        }
       }
-  }
 
-    autoTable(doc,{
+      autoTable(doc, {
         startY: yPos,
         head: [['Field', 'Value']],
         body: tableData,
         styles: {
-            fontSize: 10,
-            fontStyle: 'bold',
+          fontSize: 10,
+          fontStyle: 'bold',
         },
-    });
+      });
 
-    const totalCostY = yPos + 170;
-    doc.setFont('bold');
-    doc.text("Total cost:", 10, totalCostY);
-    doc.setFont('normal');
-    doc.text(`${this.totalCost}`, 80, totalCostY);
+      const totalCostY = yPos + 170;
+      doc.setFont('bold');
+      doc.text("Total cost:", 10, totalCostY);
+      doc.setFont('normal');
+      doc.text(`${this.totalCost}`, 80, totalCostY);
 
-    const qrText = JSON.stringify(formValues);
-    const qrCodeSize = 30;
-    const margin = 10;
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    const qrCodeX = pageWidth - qrCodeSize - margin ;
-    const qrCodeY = pageHeight - qrCodeSize - margin ;
+      const qrText = JSON.stringify(formValues);
+      const qrCodeSize = 30;
+      const margin = 10;
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const qrCodeX = pageWidth - qrCodeSize - margin;
+      const qrCodeY = pageHeight - qrCodeSize - margin;
 
-    const qrCodeDataUrl = await QRCode.toDataURL(qrText);
-    doc.addImage(qrCodeDataUrl, 'PNG', qrCodeX, qrCodeY, qrCodeSize, qrCodeSize);
+      const qrCodeDataUrl = await QRCode.toDataURL(qrText);
+      doc.addImage(qrCodeDataUrl, 'PNG', qrCodeX, qrCodeY, qrCodeSize, qrCodeSize);
 
-    doc.setFontSize(12);
-    doc.setTextColor(0);
-    doc.text("Thanks visit again", doc.internal.pageSize.getWidth() / 2, doc.internal.pageSize.height - 10, { align: 'center' });
+      doc.setFontSize(12);
+      doc.setTextColor(0);
+      doc.text("Thanks visit again", doc.internal.pageSize.getWidth() / 2, doc.internal.pageSize.height - 10, { align: 'center' });
 
-    const fileName = `${formValues.firstName}_Ticket.pdf`;
-    doc.save(fileName);
+      const fileName = `${formValues.firstName}_Ticket.pdf`;
+      doc.save(fileName);
+    } else {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Cannot generate PDF. Please fill all fields in the form.' });
+    }
   }
 
   calculateTotalPersons() {
@@ -240,8 +244,8 @@ export class SaleComponent implements OnInit {
 
   getSelectedFoodPrice(): number {
     let selectedFood = this.foodOptions.find(food => food.name === this.ticketForm.value.foodOption.name);
-    let  selectedFoodPrice;
-    if(selectedFood) {
+    let selectedFoodPrice;
+    if (selectedFood) {
       selectedFoodPrice = this.ticketForm.value.foodOption.price
     }
     return selectedFoodPrice;

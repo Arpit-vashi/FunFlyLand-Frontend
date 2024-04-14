@@ -2,26 +2,27 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FoodService } from './../../service/food.service';
 import { FoodResponse } from './../../model/food/food-response.model';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-food',
   templateUrl: './food.component.html',
-  styleUrls: ['./food.component.scss']
+  styleUrls: ['./food.component.scss'],
+  providers: [MessageService]
 })
 export class FoodComponent implements OnInit {
   foods: FoodResponse[];
   editingIndex: number | null = null;
   foodForm: FormGroup;
 
-  constructor(private fb: FormBuilder, private foodService: FoodService) {
+  constructor(private fb: FormBuilder, private foodService: FoodService, private messageService: MessageService) {
     this.foods = [];
     this.foodForm = this.fb.group({
       name: ['', Validators.required],
       description: ['', Validators.required],
       price: ['', Validators.required],
-      imageUrl: [''] // No Validators.required
+      imageUrl: ['']
     });
-    
   }
 
   ngOnInit(): void {
@@ -32,26 +33,27 @@ export class FoodComponent implements OnInit {
     this.foodService.getAllFoods().subscribe(
       (response) => {
         this.foods = response;
-        console.log('Foods:', this.foods); // Log all foods received
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Foods loaded successfully' });
       },
       (error) => {
         console.error('Error loading foods:', error);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load foods' });
       }
     );
   }
 
   addFood(): void {
-    debugger
     if (this.foodForm) {
       const newFood: FoodResponse = this.foodForm.value;
       this.foodService.addFood(newFood).subscribe(
-        (response) => {
-          console.log('Food added successfully:', response);
-          this.loadFoods(); // Refresh the table after addition
-          this.foodForm.reset(); // Reset the form
+        () => {
+          this.loadFoods();
+          this.foodForm.reset();
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Food added successfully' });
         },
         (error) => {
           console.error('Error adding food:', error);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to add food' });
         }
       );
     } else {
@@ -71,29 +73,30 @@ export class FoodComponent implements OnInit {
     if (this.editingIndex !== null) {
       this.foodService.updateFood(food.id, food).subscribe(
         () => {
-          console.log('Food updated successfully:', food);
-          this.editingIndex = null; // Reset editing state
+          this.editingIndex = null;
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Food updated successfully' });
         },
         (error) => {
           console.error('Error updating food:', error);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update food' });
         }
       );
     }
   }
 
   cancelEdit(): void {
-    this.editingIndex = null; // Cancel editing
+    this.editingIndex = null;
   }
 
   deleteFood(id: number): void {
     this.foodService.deleteFood(id).subscribe(
       () => {
-        console.log('Food deleted successfully.');
-        // Reload the table after deletion
         this.loadFoods();
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Food deleted successfully' });
       },
       (error) => {
         console.error('Error deleting food:', error);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete food' });
       }
     );
   }

@@ -3,22 +3,28 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UserService } from './../../service/user.service';
 import { UserRequest } from '../../model/users/user-request.model';
 import { UserResponse } from '../../model/users/user-response.model';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-users',
   templateUrl: './users.component.html',
-  styleUrls: ['./users.component.scss']
+  styleUrls: ['./users.component.scss'],
+  providers: [MessageService]
 })
 export class UsersComponent implements OnInit {
   userForm: FormGroup;
   users: UserResponse[];
-  editingUser: UserResponse | null = null; // Track currently editing user
+  editingUser: UserResponse | null = null;
   roles = [
     { label: 'Cashier', value: 'Cashier' },
     { label: 'Admin', value: 'Admin' }
   ];
 
-  constructor(private formBuilder: FormBuilder, private userService: UserService) {
+  constructor(
+    private formBuilder: FormBuilder,
+    private userService: UserService,
+    private messageService: MessageService
+  ) {
     this.userForm = this.formBuilder.group({
       username: ['', Validators.required],
       password: ['', Validators.required],
@@ -37,16 +43,16 @@ export class UsersComponent implements OnInit {
     this.userService.getAllUsers().subscribe(
       (response: UserResponse[]) => {
         this.users = response;
-        console.log('Users loaded successfully:', this.users);
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Users loaded successfully' });
       },
       (error) => {
         console.error('Error loading users:', error);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load users' });
       }
     );
   }
 
   onSubmit(): void {
-    console.log('Form data:', this.userForm.value);
     if (this.userForm.valid) {
       if (this.editingUser) {
         this.updateUser();
@@ -54,7 +60,7 @@ export class UsersComponent implements OnInit {
         this.createUser();
       }
     } else {
-      console.error('Form is invalid.');
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Form is invalid' });
     }
   }
 
@@ -65,16 +71,16 @@ export class UsersComponent implements OnInit {
     };
     this.userService.createUser(userRequest).subscribe(
       () => {
-        console.log('User added successfully!');
         this.loadUsers();
         this.userForm.reset();
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'User added successfully' });
       },
       (error) => {
         console.error('Error adding user:', error);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to add user' });
       }
     );
   }
-  
 
   updateUser(): void {
     if (this.editingUser) {
@@ -84,13 +90,14 @@ export class UsersComponent implements OnInit {
       };
       this.userService.updateUser(this.editingUser.id, userRequest).subscribe(
         () => {
-          console.log('User updated successfully!');
           this.loadUsers();
           this.userForm.reset();
           this.editingUser = null;
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'User updated successfully' });
         },
         (error) => {
           console.error('Error updating user:', error);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update user' });
         }
       );
     }
@@ -99,11 +106,12 @@ export class UsersComponent implements OnInit {
   deleteUser(id: number): void {
     this.userService.deleteUser(id).subscribe(
       () => {
-        console.log('User deleted successfully!');
         this.loadUsers();
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'User deleted successfully' });
       },
       (error) => {
         console.error('Error deleting user:', error);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete user' });
       }
     );
   }

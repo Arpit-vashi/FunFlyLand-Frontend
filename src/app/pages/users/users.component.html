@@ -5,37 +5,38 @@
       <div class="form-group">
         <span class="p-float-label">
           <input id="username" type="text" formControlName="username" pInputText>
-          <label for="username">Username</label>
+          <label for="username">Username*</label>
         </span>
       </div>
       <div class="form-group">
         <span class="p-float-label">
           <input id="password" type="password" formControlName="password" pInputText>
-          <label for="password">Password</label>
+          <label for="password">Password*</label>
         </span>
       </div>
       <div class="form-group">
-        <p-inputNumber placeholder="Salary" formControlName="salary"></p-inputNumber>
+        <p-inputNumber placeholder="Salary*" formControlName="salary"></p-inputNumber>
       </div>
     </div>
     <div class="form-row">
       <div class="form-group">
         <span class="p-float-label">
           <input id="email" type="text" formControlName="email" pInputText>
-          <label for="email">Email</label>
+          <label for="email">Email*</label>
         </span>
       </div>
       <div class="form-group">
         <span class="p-float-label">
           <input id="mobileNumber" type="text" formControlName="mobileNumber" pInputText>
-          <label for="mobileNumber">Mobile Number</label>
+          <label for="mobileNumber">Mobile Number*</label>
         </span>
       </div>
       <div class="form-group">
         <p-dropdown [options]="roles" formControlName="role" optionLabel="label" placeholder="Select Role"></p-dropdown>
       </div>
     </div>
-    <button pButton pRipple type="submit" label="Add User" class="p-button-raised p-button-success"></button>
+    <button pButton pRipple type="submit" icon="pi pi-plus" label="Add User" class="p-button-raised p-button-success"
+            [disabled]="!userForm.valid"></button>
   </form>
 </div>
 
@@ -120,3 +121,4 @@
     </ng-template>
   </p-table>
 </div>
+<p-toast></p-toast>
